@@ -70,9 +70,9 @@ const addContact = async (req, res, next) => {
     const contacts = await getContacts();
     const newContact = {
       id: uuid(),
-      name: body.name,
-      email: body.email,
-      phone: body.phone,
+      name,
+      email,
+      phone,
     };
     await fs.writeFile(contactsPath, JSON.stringify([...contacts, newContact]));
     res.status(201).json(newContact);

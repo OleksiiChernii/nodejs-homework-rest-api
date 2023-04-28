@@ -54,18 +54,27 @@ const removeContact = async (req, res, next) => {
 };
 
 const addContact = async (req, res, next) => {
-  const { name, email, phone } = req.body;
-  if (!name || !email || !phone) {
-    res.status(400).json({ message: "missing required name field" });
+  const body = {
+    name: req.body.name,
+    email: req.body.email,
+    phone: req.body.phone,
+  };
+  if (!body.name || !body.email || !body.phone) {
+    const fieldNames = Object.keys(body).filter((field) => !body[field]);
+    const message =
+      "missing required " + (fieldNames.length > 1
+        ? (fieldNames.join(", ") + " fields")
+        : (fieldNames.toString().concat(" field")));
+    res.status(400).json({ message });
     return;
   }
   try {
     const contacts = await getContacts();
     const newContact = {
       id: uuid(),
-      name,
-      email,
-      phone,
+      name: body.name,
+      email: body.email,
+      phone: body.phone,
     };
     await fs.writeFile(contactsPath, JSON.stringify([...contacts, newContact]));
     res.status(201).json(newContact);
@@ -82,10 +91,10 @@ const updateContact = async (req, res, next) => {
   }
   try {
     const contacts = await getContacts();
-    if (contacts.every(c => c.id !== contactId)) {
+    if (contacts.every((c) => c.id !== contactId)) {
       throw Error("NotFound");
     }
-    const updatedContacts = contacts.map(c => {
+    const updatedContacts = contacts.map((c) => {
       if (c.id !== contactId) {
         return c;
       }

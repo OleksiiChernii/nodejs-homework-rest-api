@@ -54,17 +54,15 @@ const removeContact = async (req, res, next) => {
 };
 
 const addContact = async (req, res, next) => {
-  const body = {
-    name: req.body.name,
-    email: req.body.email,
-    phone: req.body.phone,
-  };
+  const { name, email, phone } = req.body;
+  const body = { name, email, phone };
   if (!body.name || !body.email || !body.phone) {
     const fieldNames = Object.keys(body).filter((field) => !body[field]);
     const message =
-      "missing required " + (fieldNames.length > 1
-        ? (fieldNames.join(", ") + " fields")
-        : (fieldNames.toString().concat(" field")));
+      "missing required " +
+      (fieldNames.length > 1
+        ? fieldNames.join(", ") + " fields"
+        : fieldNames.toString().concat(" field"));
     res.status(400).json({ message });
     return;
   }

@@ -38,7 +38,7 @@ const errorHandler = error => {
 
 const updateContactSchema = Joi.object().keys({
   params: Joi.object().keys({
-    contactId: Joi.string().required(),
+    contactId: Joi.string().min(5).required(),
   }),
   body: ContactSchema,
 });

@@ -90,7 +90,7 @@ const updateContact = async (req, res, next) => {
       return c;
     });
     fs.writeFile(contactsPath, JSON.stringify(updatedContacts));
-    res.status(200).json({ message: "Contact updated" });
+    res.status(200).json(updatedContacts.find(({ id }) => id === contactId));
   } catch (error) {
     res.status(404).json({ message: error.message });
   }

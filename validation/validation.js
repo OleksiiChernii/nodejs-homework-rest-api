@@ -50,7 +50,7 @@ function validateUpdateContact() {
       options
     );
     if (typeof error !== "undefined") {
-      return res.status(400).json({ message: errorHandler(error) });
+      return res.status(400).json({ message: 'missing fields' });
     }
     req.body = value.body;
     req.params = value.params;

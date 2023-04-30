@@ -82,7 +82,7 @@ const updateContact = async (req, res, next) => {
       if (c.id !== contactId) {
         return c;
       }
-      for (const prop in req.body) {
+      for (const prop in c) {
         if (req.body[prop]) {
           c[prop] = req.body[prop];
         }

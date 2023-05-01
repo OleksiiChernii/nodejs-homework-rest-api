@@ -40,7 +40,7 @@ const updateContactSchema = Joi.object().keys({
   params: Joi.object().keys({
     contactId: Joi.string().min(5).required(),
   }),
-  body: Joi.object().required(),
+  body: Joi.object().keys().min(1).required(),
 });
 
 function validateUpdateContact() {

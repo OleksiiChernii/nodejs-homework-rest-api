@@ -5,8 +5,7 @@ const ContactSchema = Joi.object().keys({
   email: Joi.string()
     .required()
     .regex(/^\S+@\S+\.\S+$/),
-  phone: Joi.string()
-    .required()
+  phone: Joi.string().required(),
 });
 
 const options = {
@@ -28,7 +27,7 @@ function validateCreateContact() {
   };
 }
 
-const errorHandler = error => {
+const errorHandler = (error) => {
   const fields = error.details.map(({ context }) => context.key);
   return (
     "missing required " +
@@ -43,14 +42,23 @@ const updateContactSchema = Joi.object().keys({
   body: Joi.object().keys().min(1).required(),
 });
 
-function validateUpdateContact() {
+const favoriteContactSchema = Joi.object().keys({
+  params: Joi.object().keys({
+    contactId: Joi.string().min(5).required(),
+  }),
+  body: Joi.object().keys({
+    favorite: Joi.boolean().required(),
+  }),
+});
+
+function validateUpdateFavorite() {
   return (req, res, next) => {
-    const { error, value } = updateContactSchema.validate(
+    const { error, value } = favoriteContactSchema.validate(
       { params: req.params, body: req.body },
       options
     );
     if (typeof error !== "undefined") {
-      return res.status(400).json({ message: 'missing fields' });
+      return res.status(400).json({ message: "missing field favorite" });
     }
     req.body = value.body;
     req.params = value.params;
@@ -58,4 +66,23 @@ function validateUpdateContact() {
   };
 }
 
-module.exports = { validateCreateContact, validateUpdateContact };
+function validateUpdateContact() {
+  return (req, res, next) => {
+    const { error, value } = updateContactSchema.validate(
+      { params: req.params, body: req.body },
+      options
+    );
+    if (typeof error !== "undefined") {
+      return res.status(400).json({ message: "missing fields" });
+    }
+    req.body = value.body;
+    req.params = value.params;
+    return next();
+  };
+}
+
+module.exports = {
+  validateCreateContact,
+  validateUpdateContact,
+  validateUpdateFavorite,
+};

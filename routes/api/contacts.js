@@ -7,6 +7,7 @@ const {
   updateContact,
   updateFavorite,
 } = require("../../models/contacts");
+const validateToken = require('../../middleware/auth')
 
 const router = express.Router();
 
@@ -16,16 +17,16 @@ const {
   validateUpdateFavorite,
 } = require("../../validation/validation");
 
-router.get("/", listContacts);
+router.get("/", validateToken, listContacts);
 
-router.get("/:contactId", getContactById);
+router.get("/:contactId", validateToken,getContactById);
 
-router.post("/", validateCreateContact(), addContact);
+router.post("/", validateToken, validateCreateContact(), addContact);
 
-router.delete("/:contactId", removeContact);
+router.delete("/:contactId", validateToken, removeContact);
 
-router.put("/:contactId", validateUpdateContact(), updateContact);
+router.put("/:contactId", validateToken, validateUpdateContact(), updateContact);
 
-router.patch("/:contactId/favorite", validateUpdateFavorite(), updateFavorite);
+router.patch("/:contactId/favorite", validateToken, validateUpdateFavorite(), updateFavorite);
 
 module.exports = router;

@@ -55,9 +55,8 @@ const updateContact = async (req, res, next) => {
   const { contactId } = req.params;
   const { id: ownerId } = req.user;
   try {
-    await service.updateContact(contactId, ownerId, req.body);
-    const updatedContact = await service.getContactById(contactId, ownerId);
-    res.status(200).json(updatedContact);
+    const contact = await service.updateContact(contactId, ownerId, req.body);
+    res.status(200).json(contact);
   } catch (error) {
     res.status(404).json({ message: error.message });
   }

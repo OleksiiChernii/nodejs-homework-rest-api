@@ -21,7 +21,7 @@ function validate() {
 
     if (typeof error !== "undefined") {
       return res.status(400).json({
-        message: error.details.map(({ context }) => context).join(" ,"),
+        message: error.details.map(({ message }) => message).join(" ,"),
       });
     }
     req.body = value.body;

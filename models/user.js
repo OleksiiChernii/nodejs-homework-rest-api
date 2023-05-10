@@ -66,7 +66,7 @@ const logout = async (req, res, next) => {
 
 const current = async (req, res, next) => {
   const { id } = req.user;
-  const user = User.findById(id);
+  const user = await User.findById(id);
   return user
     ? res
         .status(200)

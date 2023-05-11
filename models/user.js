@@ -79,10 +79,10 @@ const avatar = async (req, res, next) => {
   const { id } = req.user;
   const { path, originalname } = req.file;
   const [name, ext] = originalname.split(".");
-  const avatarURL = `avatars/${name}-${id}.${ext}`;
+  const avatarURL = `/avatars/${name}-${id}.${ext}`;
   Jimp.read(path)
     .then((picture) => {
-      return picture.resize(250, 250).write("public/" + avatarURL);
+      return picture.resize(250, 250).write("public" + avatarURL);
     })
     .catch((error) => console.error(error));
   const user = await User.findByIdAndUpdate(id, { avatarURL });

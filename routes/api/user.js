@@ -1,6 +1,5 @@
 const express = require("express");
 const multer = require("multer");
-const path = require("path");
 const {
   register,
   login,
@@ -10,11 +9,16 @@ const {
 } = require("../../models/user");
 const validate = require("../../validation/auth");
 const validateToken = require("../../middleware/auth");
+const fs = require("fs");
 const router = express.Router();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "../..", "tmp"));
+    const dirPath = 'tmp';
+    if(!fs.existsSync(dirPath)){
+      fs.mkdirSync(dirPath);
+    }
+    cb(null, dirPath);
   },
   filename: (req, file, cb) => {
     cb(null, file.originalname);

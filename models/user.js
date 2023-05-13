@@ -84,7 +84,7 @@ const avatar = async (req, res, next) => {
     .then((picture) => {
       return picture.resize(250, 250).write("public" + avatarURL);
     })
-    .catch((error) => console.error(error));
+    .catch((error) => res.status(500).json({ message: error.message }));
   const user = await User.findByIdAndUpdate(id, { avatarURL });
 
   return user

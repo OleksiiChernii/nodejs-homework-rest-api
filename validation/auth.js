@@ -29,4 +29,21 @@ function validate() {
   };
 }
 
-module.exports = validate;
+const validateVerify = async (req, res, next) => {
+  const { error, value } = Joi.object()
+    .keys({
+      body: Joi.object().keys({
+        email: Joi.string()
+          .required()
+          .regex(/^\S+@\S+\.\S+$/),
+      }),
+    })
+    .validate({ body: req.body }, options);
+  if (typeof error !== "undefined") {
+    return res.status(400).json({ message: "missing required field email" });
+  }
+  req.body = value.body;
+  return next();
+};
+
+module.exports = { validate, validateVerify };

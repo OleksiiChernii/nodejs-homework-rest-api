@@ -6,16 +6,18 @@ const {
   logout,
   current,
   avatar,
+  verifyToken,
+  verify,
 } = require("../../models/user");
-const validate = require("../../validation/auth");
+const { validate, validateVerify } = require("../../validation/auth");
 const validateToken = require("../../middleware/auth");
 const fs = require("fs");
 const router = express.Router();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dirPath = 'tmp';
-    if(!fs.existsSync(dirPath)){
+    const dirPath = "tmp";
+    if (!fs.existsSync(dirPath)) {
       fs.mkdirSync(dirPath);
     }
     cb(null, dirPath);
@@ -36,5 +38,9 @@ router.post("/logout", validateToken, logout);
 router.get("/current", validateToken, current);
 
 router.patch("/avatars", validateToken, upload.single("avatar"), avatar);
+
+router.get("/verify/:verificationToken", verifyToken);
+
+router.post("/verify", validateVerify, verify);
 
 module.exports = router;

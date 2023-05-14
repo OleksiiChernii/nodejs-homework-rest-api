@@ -2,6 +2,7 @@ const jsonwebtoken = require("jsonwebtoken");
 const gravatar = require("gravatar");
 const Jimp = require("jimp");
 const User = require("../service/schemas/users");
+const fs = require("fs");
 require("dotenv").config({ path: "../.env" });
 
 const register = async (req, res, next) => {
@@ -80,11 +81,14 @@ const avatar = async (req, res, next) => {
   const { path, originalname } = req.file;
   const [name, ext] = originalname.split(".");
   const avatarURL = `/avatars/${name}-${id}.${ext}`;
-  Jimp.read(path)
-    .then((picture) => {
-      return picture.resize(250, 250).write("public" + avatarURL);
-    })
-    .catch((error) => res.status(500).json({ message: error.message }));
+  try {
+    const picture = await Jimp.read(path);
+    picture.resize(250, 250).write("public" + avatarURL);
+    fs.unlinkSync(path);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+
   const user = await User.findByIdAndUpdate(id, { avatarURL });
 
   return user

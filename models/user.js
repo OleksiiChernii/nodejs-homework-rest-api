@@ -22,7 +22,7 @@ const register = async (req, res, next) => {
     });
     user.setPassword(password);
     const createdUser = await user.save();
-    const url = `/users/verify/${verificationToken}`;
+    const url = `localhost:3000/users/verify/${verificationToken}`;
     const text = `Please confirm your email, ${url}`;
     const html = `<p>Please confirm your email, <a>${url}</a></p>`;
     const message = {
@@ -117,7 +117,7 @@ const avatar = async (req, res, next) => {
 const verifyToken = async (req, res, next) => {
   const { verificationToken } = req.params;
   const user = await User.findOne({ verificationToken });
-  if (user.verify) {
+  if (!user || user.verify) {
     return res.status(404).json({ message: "User not found" });
   }
   await User.findOneAndUpdate(
@@ -132,13 +132,16 @@ const verify = async (req, res, next) => {
   try {
     const verificationToken = uuid();
     const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
     if (user.verify) {
       return res
         .status(400)
         .json({ message: "Verification has already been passed" });
     }
     await User.findOneAndUpdate({ email }, { verificationToken });
-    const url = `/users/verify/${verificationToken}`;
+    const url = `localhost:3000/users/verify/${verificationToken}`;
     const text = `Please confirm your email, ${url}`;
     const html = `<p>Please confirm your email, <a>${url}</a></p>`;
     const message = {
@@ -149,10 +152,10 @@ const verify = async (req, res, next) => {
       html,
     };
     await sendgrid.send(message);
+    return res.status(200).json({ message: "Verification email sent" });
   } catch (error) {
     return res.status(404).json({ message: error.message });
   }
-  next();
 };
 
 module.exports = {

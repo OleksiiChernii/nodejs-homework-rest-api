@@ -4,6 +4,7 @@ const Jimp = require("jimp");
 const User = require("../service/schemas/users");
 const { v4: uuid } = require("uuid");
 const sendgrid = require("@sendgrid/mail");
+const fs = require("fs");
 require("dotenv").config({ path: "../.env" });
 
 sendgrid.setApiKey(process.env.API_KEY);
@@ -102,11 +103,14 @@ const avatar = async (req, res, next) => {
   const { path, originalname } = req.file;
   const [name, ext] = originalname.split(".");
   const avatarURL = `/avatars/${name}-${id}.${ext}`;
-  Jimp.read(path)
-    .then((picture) => {
-      return picture.resize(250, 250).write("public" + avatarURL);
-    })
-    .catch((error) => res.status(500).json({ message: error.message }));
+  try {
+    const picture = await Jimp.read(path);
+    picture.resize(250, 250).write("public" + avatarURL);
+    fs.unlinkSync(path);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+
   const user = await User.findByIdAndUpdate(id, { avatarURL });
 
   return user

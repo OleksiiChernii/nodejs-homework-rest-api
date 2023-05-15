@@ -1,17 +1,19 @@
 const jsonwebtoken = require("jsonwebtoken");
+const gravatar = require("gravatar");
+const Jimp = require("jimp");
 const User = require("../service/schemas/users");
+const fs = require("fs");
 require("dotenv").config({ path: "../.env" });
 
 const register = async (req, res, next) => {
   const { email, password } = req.body;
   try {
-    const user = await User.findOne({ email });
-    if (user) {
+    if (await User.findOne({ email })) {
       return res.status(409).json({ message: "Email in use" });
     }
-    const newUser = new User({ email });
-    newUser.setPassword(password);
-    const createdUser = await newUser.save();
+    const user = new User({ email, avatarURL: gravatar.url(email) });
+    user.setPassword(password);
+    const createdUser = await user.save();
     return res.status(201).json({
       user: {
         email: createdUser.email,
@@ -74,4 +76,24 @@ const current = async (req, res, next) => {
     : res.status(401).json({ message: "Not authorized" });
 };
 
-module.exports = { register, login, logout, current };
+const avatar = async (req, res, next) => {
+  const { id } = req.user;
+  const { path, originalname } = req.file;
+  const [name, ext] = originalname.split(".");
+  const avatarURL = `/avatars/${name}-${id}.${ext}`;
+  try {
+    const picture = await Jimp.read(path);
+    picture.resize(250, 250).write("public" + avatarURL);
+    fs.unlinkSync(path);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+
+  const user = await User.findByIdAndUpdate(id, { avatarURL });
+
+  return user
+    ? res.status(200).json({ avatarURL })
+    : res.status(409).json({ message: "Not authorized" });
+};
+
+module.exports = { register, login, logout, current, avatar };
